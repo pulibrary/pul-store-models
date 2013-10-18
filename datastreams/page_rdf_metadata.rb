@@ -12,7 +12,7 @@ class PageRdfMetadata < ActiveFedora::NtriplesRDFDatastream
 
     map.sort_order(to: "sortOrder", in: RDF::PULStorePages) do |index|
       index.as :stored_searchable
-      index.type :integer
+      index.type :float
     end
 
     # map.part_of(:to => "isPartOf", :in => RDF::DC) # index, eg. if is part of a Collection

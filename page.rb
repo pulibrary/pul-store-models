@@ -1,6 +1,8 @@
 class Page < ActiveFedora::Base
   has_metadata 'page_rdf_metadata', type: PageRdfMetadata
 
+  validates :sort_order, presence: true
+
   has_file_datastream 'master_image'
   has_file_datastream 'deliverable_image'
 
