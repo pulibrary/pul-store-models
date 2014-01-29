@@ -20,4 +20,8 @@ class PulStore::Project < PulStore::Base
   validates :display_label, presence: true
   validates :project_identifier, presence: true
 
+  def terms_for_editing
+    terms_for_display = [:description, :display_label, :project_identifier]
+  end
+
 end

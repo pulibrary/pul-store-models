@@ -1,4 +1,5 @@
 class PulStore::Base < ActiveFedora::Base
+  include Hydra::AccessControls::Permissions
   include PulStore::Timestamp
 
   has_metadata 'provMetadata', type: PulStore::ProvRdfMetadata

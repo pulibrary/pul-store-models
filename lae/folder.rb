@@ -17,6 +17,9 @@ class PulStore::Lae::Folder < PulStore::Item
     @@required_elements
   end
 
+  def terms_for_editing
+    @@required_elements
+  end
   # Callbacks
   before_save :_defaults
 
