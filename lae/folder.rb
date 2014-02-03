@@ -1,5 +1,4 @@
 require Rails.root.join('app/models/pul_store/lib/active_fedora/pid')
-
 class PulStore::Lae::Folder < PulStore::Item
   include PulStore::Validations
   include PulStore::Lae::Provenance
@@ -10,8 +9,8 @@ class PulStore::Lae::Folder < PulStore::Item
   end
 
   @@required_elements = (
-    [:date_created, :rights, :sort_title, :subject, :title, :geographic, :language] << @@prelim_elements
-  ).flatten
+    [:date_created, :rights, :sort_title, :subject, :title, :geographic, 
+      :language] << @@prelim_elements).flatten
 
   def self.required_elements
     @@required_elements
@@ -44,7 +43,6 @@ class PulStore::Lae::Folder < PulStore::Item
   has_attributes :language, :datastream => 'descMetadata', multiple: true
   has_attributes :geographic, :datastream => 'descMetadata', multiple: true
 
-
   # Associations
   belongs_to :box, property: :in_box, :class_name => 'PulStore::Lae::Box'
   has_many :pages, property: :is_part_of, :class_name => 'PulStore::Page'
@@ -63,17 +61,11 @@ class PulStore::Lae::Folder < PulStore::Item
     message: "Barcode must start with '32101'"
 
   validate :validate_barcode
+  validate :validate_barcode_uniqueness, on: :create
 
-  # TODO: needs a format validation
-  # THESE NEED CONDITIONS...or do we let the workflow states handle them or maybe only when in_production?
-  # validates_presence_of :date_created, message: "A date is required"
-  # validates_presence_of :subject, message: "At least one subject is required"
-  # validates_presence_of :genre, message: "A genre term is required"
-  # validates_presence_of :geographic, message: "At least one country is required"
-  # validates_presence_of :extent, message: "Extent is required"
-  # validates_presence_of :language, message: "At least one language term is required"
-  # validates_presence_of :rights, message: "A rights statement is required"
-  
+  validates_presence_of @@required_elements, if: :passed_qc?
+  validates_presence_of :pages, if: :passed_qc?
+
   def suppressed?
     self.suppressed = false if self.suppressed.blank?
     ["true", 1, true].include? self.suppressed # Not cool. We want an actual boolean!
