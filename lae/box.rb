@@ -6,15 +6,15 @@ class PulStore::Lae::Box < PulStore::Base
 
   # Callbacks
   before_save :_defaults
-  before_validation do 
+  before_validation do
     self.physical_location = PUL_STORE_CONFIG['lae_recap_code'] if self.physical_location.blank?
   end
 
   # Delegate attributes
-  has_attributes :full, :physical_location, :tracking_number, 
+  has_attributes :full, :physical_location, :tracking_number,
     :datastream => 'provMetadata', multiple: false
   # For dates, UI should let a bool through and then set the date (Date.current)
-  has_attributes :shipped_date, :received_date, 
+  has_attributes :shipped_date, :received_date,
     :datastream => 'provMetadata', multiple: false
 
   # Associations
@@ -23,26 +23,26 @@ class PulStore::Lae::Box < PulStore::Base
   # has_one hard_drive
 
   # Validations
-  validates_presence_of :barcode, 
+  validates_presence_of :barcode,
     message: "A barcode is required"
 
-  validates_length_of :barcode, 
+  validates_length_of :barcode,
     is: 14,
     message: "Barcode must be 14 characters long"
 
-  validates_format_of :barcode, 
-    with: /\A32101/, 
+  validates_format_of :barcode,
+    with: /\A32101/,
     message: "Barcode must start with '32101'"
 
-  validates_presence_of :shipped_date, 
-    message: "A shipped date is required in order for something to be received", 
+  validates_presence_of :shipped_date,
+    message: "A shipped date is required in order for something to be received",
     if: :received_date?
 
-  validates_presence_of :shipped_date, 
-    message: "A shipped date is required in order for there to be a tracking number", 
+  validates_presence_of :shipped_date,
+    message: "A shipped date is required in order for there to be a tracking number",
     if: :tracking_number
 
-  validates_presence_of :tracking_number, 
+  validates_presence_of :tracking_number,
     message: "A tracking number can only be supplied is the box is marked 'Shipped'",
     if: :shipped?
 
@@ -84,12 +84,20 @@ class PulStore::Lae::Box < PulStore::Base
 
   # TODO: hard_drive tests, once we have enough of HardDrive
 
+  def terms_for_editing
+    [:barcode, :full]
+  end
 
   protected
 
   def _defaults
     self.full = self.full?
     self.state = self._infer_state
+    if self.permissions.blank?
+      self.edit_groups = ["all_project_writers", "lae_project_writers"]
+      self.read_groups = ["all_project_readers", "lae_project_readers"]
+      self.discover_groups = ["all_project_readers", "lae_project_readers"]
+    end
     nil
   end
 

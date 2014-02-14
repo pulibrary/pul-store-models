@@ -9,10 +9,14 @@ class PulStore::Lae::Folder < PulStore::Item
   end
 
   @@required_elements = (
-    [:date_created, :rights, :sort_title, :subject, :title, :geographic, 
+    [:date_created, :rights, :sort_title, :subject, :title, :geographic,
       :language] << @@prelim_elements).flatten
 
   def self.required_elements
+    @@required_elements
+  end
+
+  def terms_for_editing
     @@required_elements
   end
 
@@ -24,7 +28,7 @@ class PulStore::Lae::Folder < PulStore::Item
 
   # Delegate attributes
   #   Provenance
-  has_attributes :suppressed, :passed_qc, 
+  has_attributes :suppressed, :passed_qc,
     :datastream => 'provMetadata', multiple: false
 
   # Descriptive
@@ -52,12 +56,12 @@ class PulStore::Lae::Folder < PulStore::Item
   # but haven't been able to figure out how.
   validates_presence_of :barcode, message: "A barcode is required"
 
-  validates_length_of :barcode, 
+  validates_length_of :barcode,
     is: 14,
     message: "Barcode must be 14 characters long"
 
-  validates_format_of :barcode, 
-    with: /\A32101/, 
+  validates_format_of :barcode,
+    with: /\A32101/,
     message: "Barcode must start with '32101'"
 
   validate :validate_barcode
@@ -98,6 +102,11 @@ class PulStore::Lae::Folder < PulStore::Item
     self.suppressed = self.suppressed?
     self.passed_qc = self.passed_qc?
     self.state = self._infer_state
+    if self.permissions.blank?
+      self.edit_groups = ["all_project_writers", "lae_project_writers"]
+      self.read_groups = ["all_project_readers", "lae_project_readers"]
+      self.discover_groups = ["all_project_readers", "lae_project_readers"]
+    end
     nil
   end
 
